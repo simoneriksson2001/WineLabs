@@ -1,0 +1,816 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wine Learning Hub</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d1f 100%);
+            color: #e0e0e0;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 30px 0;
+        }
+
+        h1 {
+            font-size: 3em;
+            color: #d4af37;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        .subtitle {
+            font-size: 1.2em;
+            color: #a0a0a0;
+            font-style: italic;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .modules-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .module-card {
+            background: rgba(212, 175, 55, 0.1);
+            border: 2px solid #d4af37;
+            border-radius: 10px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .module-card:hover {
+            background: rgba(212, 175, 55, 0.2);
+            transform: translateY(-5px);
+            box-shadow: 0 5px 20px rgba(212, 175, 55, 0.3);
+        }
+
+        .module-card h2 {
+            color: #d4af37;
+            margin-bottom: 10px;
+            font-size: 1.5em;
+        }
+
+        .module-card p {
+            color: #b0b0b0;
+            font-size: 0.95em;
+            line-height: 1.6;
+        }
+
+        .module-card.active {
+            background: rgba(212, 175, 55, 0.2);
+            border-color: #e0c86c;
+        }
+
+        .content-section {
+            display: none;
+            background: rgba(0, 0, 0, 0.3);
+            border: 2px solid #d4af37;
+            border-radius: 10px;
+            padding: 30px;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .content-section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .region-practice {
+            margin-top: 20px;
+        }
+
+        .practice-controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        select, button {
+            padding: 10px 15px;
+            background: #d4af37;
+            border: none;
+            border-radius: 5px;
+            color: #1a1a1a;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            font-size: 1em;
+        }
+
+        select {
+            background: #d4af37;
+            color: #1a1a1a;
+        }
+
+        button:hover {
+            background: #e0c86c;
+            transform: scale(1.05);
+        }
+
+        button:active {
+            transform: scale(0.98);
+        }
+
+        .question-box {
+            background: rgba(100, 100, 80, 0.3);
+            border-left: 4px solid #d4af37;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+
+        .question-box h3 {
+            color: #d4af37;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+
+        .question-box p {
+            color: #c0c0c0;
+            font-size: 1.1em;
+            line-height: 1.6;
+        }
+
+        .options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .option-btn {
+            padding: 12px;
+            background: rgba(212, 175, 55, 0.1);
+            border: 2px solid #d4af37;
+            border-radius: 5px;
+            color: #e0e0e0;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .option-btn:hover {
+            background: rgba(212, 175, 55, 0.2);
+        }
+
+        .option-btn.selected {
+            background: #d4af37;
+            color: #1a1a1a;
+            font-weight: bold;
+        }
+
+        .option-btn.correct {
+            background: #28a745;
+            border-color: #28a745;
+            color: white;
+        }
+
+        .option-btn.incorrect {
+            background: #dc3545;
+            border-color: #dc3545;
+            color: white;
+        }
+
+        .feedback {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 5px;
+            display: none;
+            font-weight: bold;
+        }
+
+        .feedback.correct {
+            background: rgba(40, 167, 69, 0.2);
+            border-left: 4px solid #28a745;
+            color: #90ee90;
+        }
+
+        .feedback.incorrect {
+            background: rgba(220, 53, 69, 0.2);
+            border-left: 4px solid #dc3545;
+            color: #ff6b6b;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .stat-box {
+            background: rgba(212, 175, 55, 0.1);
+            border: 2px solid #d4af37;
+            border-radius: 5px;
+            padding: 15px;
+            text-align: center;
+        }
+
+        .stat-box .label {
+            color: #a0a0a0;
+            font-size: 0.9em;
+            margin-bottom: 5px;
+        }
+
+        .stat-box .value {
+            color: #d4af37;
+            font-size: 2em;
+            font-weight: bold;
+        }
+
+        .region-map {
+            background: rgba(100, 100, 80, 0.2);
+            border: 2px solid #d4af37;
+            border-radius: 5px;
+            padding: 20px;
+            margin: 20px 0;
+            min-height: 300px;
+        }
+
+        .region-map h4 {
+            color: #d4af37;
+            margin-bottom: 15px;
+        }
+
+        .region-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .region-item {
+            background: rgba(212, 175, 55, 0.1);
+            border: 1px solid #d4af37;
+            border-radius: 5px;
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .region-item:hover {
+            background: rgba(212, 175, 55, 0.2);
+            transform: translateY(-3px);
+        }
+
+        .region-item h5 {
+            color: #d4af37;
+            margin-bottom: 8px;
+        }
+
+        .region-item .description {
+            color: #a0a0a0;
+            font-size: 0.9em;
+            line-height: 1.4;
+        }
+
+        .back-btn {
+            margin-bottom: 20px;
+            background: #666;
+        }
+
+        .back-btn:hover {
+            background: #888;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>🍷 Wine Learning Hub</h1>
+        <p class="subtitle">Master the art and science of wine</p>
+    </header>
+
+    <div class="container">
+        <!-- Main Menu -->
+        <div id="mainMenu">
+            <div class="modules-grid">
+                <div class="module-card" onclick="selectModule('regions')">
+                    <h2>🌍 Wine Regions</h2>
+                    <p>Learn about wine regions around the world. Practice identifying countries, regions, and their characteristics.</p>
+                </div>
+                <div class="module-card">
+                    <h2>🍇 Grapes (Coming Soon)</h2>
+                    <p>Discover different grape varieties, their characteristics, and the wines they produce.</p>
+                </div>
+                <div class="module-card">
+                    <h2>👃 Tasting Notes (Coming Soon)</h2>
+                    <p>Learn to identify aromas, flavors, and tasting notes in wines.</p>
+                </div>
+                <div class="module-card">
+                    <h2>📚 Wine Basics (Coming Soon)</h2>
+                    <p>Understand the fundamentals of winemaking, wine chemistry, and classification.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Wine Regions Module -->
+        <div id="regionsContent" class="content-section">
+            <button class="back-btn" onclick="backToMenu()">← Back to Menu</button>
+            
+            <h2 style="color: #d4af37; margin-bottom: 20px;">🌍 Wine Regions Practice</h2>
+            
+            <!-- Region Explorer -->
+            <div class="region-practice">
+                <div class="practice-controls">
+                    <select id="countrySelect" onchange="loadRegions()">
+                        <option value="">Select a Country...</option>
+                        <option value="france">France</option>
+                        <option value="italy">Italy</option>
+                        <option value="spain">Spain</option>
+                        <option value="germany">Germany</option>
+                        <option value="california">USA - California</option>
+                        <option value="australia">Australia</option>
+                        <option value="chile">Chile</option>
+                        <option value="argentina">Argentina</option>
+                    </select>
+                    <button onclick="startQuiz()">Start Quiz</button>
+                    <button onclick="toggleLearningMode()">Learning Mode</button>
+                </div>
+
+                <!-- Learning Mode -->
+                <div id="learningMode" style="display: none;">
+                    <div class="region-map">
+                        <h4>Regions in <span id="selectedCountry">Selected Country</span></h4>
+                        <div id="regionsList" class="region-list"></div>
+                    </div>
+                </div>
+
+                <!-- Quiz Mode -->
+                <div id="quizMode" style="display: none;">
+                    <div class="stats">
+                        <div class="stat-box">
+                            <div class="label">Score</div>
+                            <div class="value" id="score">0</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="label">Correct</div>
+                            <div class="value" id="correct">0</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="label">Total</div>
+                            <div class="value" id="total">0</div>
+                        </div>
+                    </div>
+
+                    <div class="question-box" id="questionContainer" style="display: none;">
+                        <h3>Question <span id="questionNumber">1</span></h3>
+                        <p id="questionText"></p>
+                        <div class="options" id="optionsContainer"></div>
+                        <div class="feedback" id="feedback"></div>
+                        <button onclick="nextQuestion()" style="margin-top: 15px; display: none;" id="nextBtn">Next Question →</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Wine Regions Database
+        const wineDatabase = {
+            france: {
+                name: "France",
+                regions: [
+                    {
+                        name: "Bordeaux",
+                        description: "Famous for Cabernet Sauvignon and Merlot blends",
+                        location: "Southwest France",
+                        characteristics: ["Full-bodied reds", "Elegant", "Structured tannins"]
+                    },
+                    {
+                        name: "Burgundy",
+                        description: "Renowned for Pinot Noir and Chardonnay",
+                        location: "East-central France",
+                        characteristics: ["Complex", "Age-worthy", "Terroir-focused"]
+                    },
+                    {
+                        name: "Champagne",
+                        description: "Home of the world's most famous sparkling wine",
+                        location: "Northeast France",
+                        characteristics: ["Sparkling", "Elegant", "Festive"]
+                    },
+                    {
+                        name: "Loire Valley",
+                        description: "Produces diverse wines including Sauvignon Blancs",
+                        location: "Central France",
+                        characteristics: ["White wines", "Fresh", "Versatile"]
+                    },
+                    {
+                        name: "Alsace",
+                        description: "Known for aromatic white wines",
+                        location: "Northeast France",
+                        characteristics: ["Aromatics", "Floral", "Riesling"]
+                    },
+                    {
+                        name: "Rhône Valley",
+                        description: "Produces both reds and whites, famous for Syrah",
+                        location: "Southeast France",
+                        characteristics: ["Spicy", "Full-bodied", "Mediterranean"]
+                    }
+                ]
+            },
+            italy: {
+                name: "Italy",
+                regions: [
+                    {
+                        name: "Tuscany",
+                        description: "Home to Brunello and Chianti",
+                        location: "Central Italy",
+                        characteristics: ["Sangiovese", "Elegant", "Earthy"]
+                    },
+                    {
+                        name: "Piedmont",
+                        description: "Produces Barolo and Barbaresco",
+                        location: "Northwest Italy",
+                        characteristics: ["Nebbiolo", "Powerful", "Tannic"]
+                    },
+                    {
+                        name: "Veneto",
+                        description: "Known for Prosecco and Amarone",
+                        location: "Northeast Italy",
+                        characteristics: ["Sparkling", "Sweet", "Fruity"]
+                    },
+                    {
+                        name: "Sicily",
+                        description: "Warm climate produces bold reds and whites",
+                        location: "Southern Italy",
+                        characteristics: ["Warm", "Fruity", "Robust"]
+                    }
+                ]
+            },
+            spain: {
+                name: "Spain",
+                regions: [
+                    {
+                        name: "Rioja",
+                        description: "Spain's most famous wine region for reds",
+                        location: "North-central Spain",
+                        characteristics: ["Tempranillo", "Elegant", "Aged in oak"]
+                    },
+                    {
+                        name: "Ribera del Duero",
+                        description: "Produces powerful Tempranillo-based wines",
+                        location: "North-central Spain",
+                        characteristics: ["Full-bodied", "Intense", "Complex"]
+                    },
+                    {
+                        name: "Penedès",
+                        description: "Known for Cava sparkling wine",
+                        location: "Northeast Spain (Catalonia)",
+                        characteristics: ["Sparkling", "Versatile", "Value"]
+                    },
+                    {
+                        name: "Sherry Region (Jerez)",
+                        description: "Home to fortified Sherry wines",
+                        location: "Southern Spain",
+                        characteristics: ["Fortified", "Complex", "Dry to Sweet"]
+                    }
+                ]
+            },
+            germany: {
+                name: "Germany",
+                regions: [
+                    {
+                        name: "Mosel",
+                        description: "Steep vineyards producing delicate Rieslings",
+                        location: "Western Germany",
+                        characteristics: ["Riesling", "Delicate", "Fruity"]
+                    },
+                    {
+                        name: "Rheingau",
+                        description: "Premium Riesling and Spätburgunder region",
+                        location: "Western Germany",
+                        characteristics: ["Fine Riesling", "Elegant", "Quality-focused"]
+                    },
+                    {
+                        name: "Pfalz",
+                        description: "Largest wine region producing diverse wines",
+                        location: "Southwest Germany",
+                        characteristics: ["Diverse", "Warm", "Off-dry styles"]
+                    }
+                ]
+            },
+            california: {
+                name: "USA - California",
+                regions: [
+                    {
+                        name: "Napa Valley",
+                        description: "Famous for Cabernet Sauvignon and Chardonnay",
+                        location: "Northern California",
+                        characteristics: ["Premium", "Cabernet", "Chardonnay"]
+                    },
+                    {
+                        name: "Sonoma County",
+                        description: "Diverse wines including Pinot Noir and Zinfandel",
+                        location: "Northern California",
+                        characteristics: ["Diverse", "Pinot Noir", "Zinfandel"]
+                    },
+                    {
+                        name: "Monterey County",
+                        description: "Known for Chardonnay and Pinot Noir",
+                        location: "Central Coast",
+                        characteristics: ["Cool climate", "Elegant", "Minerality"]
+                    },
+                    {
+                        name: "Santa Barbara County",
+                        description: "Produces excellent Pinot Noir and Syrah",
+                        location: "Central Coast",
+                        characteristics: ["Pinot Noir", "Syrah", "Terroir-driven"]
+                    }
+                ]
+            },
+            australia: {
+                name: "Australia",
+                regions: [
+                    {
+                        name: "Barossa Valley",
+                        description: "Famous for bold Shiraz wines",
+                        location: "South Australia",
+                        characteristics: ["Shiraz", "Full-bodied", "Fruity"]
+                    },
+                    {
+                        name: "Margaret River",
+                        description: "Produces high-quality reds and whites",
+                        location: "Western Australia",
+                        characteristics: ["Cabernet", "Chardonnay", "Premium"]
+                    },
+                    {
+                        name: "Yarra Valley",
+                        description: "Cool climate region for Pinot Noir and Chardonnay",
+                        location: "Victoria",
+                        characteristics: ["Pinot Noir", "Chardonnay", "Elegant"]
+                    }
+                ]
+            },
+            chile: {
+                name: "Chile",
+                regions: [
+                    {
+                        name: "Central Valley",
+                        description: "Chile's largest wine region producing diverse wines",
+                        location: "Central Chile",
+                        characteristics: ["Diverse", "Value", "Cabernet Sauvignon"]
+                    },
+                    {
+                        name: "Casablanca Valley",
+                        description: "Cool coastal region known for Sauvignon Blanc",
+                        location: "Central Chile",
+                        characteristics: ["Sauvignon Blanc", "Fresh", "Coastal"]
+                    },
+                    {
+                        name: "Carmenère Region",
+                        description: "Specialty region for Carmenère grape",
+                        location: "Central Chile",
+                        characteristics: ["Carmenère", "Full-bodied", "Spicy"]
+                    }
+                ]
+            },
+            argentina: {
+                name: "Argentina",
+                regions: [
+                    {
+                        name: "Mendoza",
+                        description: "Argentina's premier wine region for Malbec",
+                        location: "Western Argentina",
+                        characteristics: ["Malbec", "Full-bodied", "Rich"]
+                    },
+                    {
+                        name: "Salta",
+                        description: "Highest elevation vineyards producing elegant wines",
+                        location: "Northwest Argentina",
+                        characteristics: ["High altitude", "Elegant", "Minerality"]
+                    },
+                    {
+                        name: "San Juan",
+                        description: "Large region producing diverse wines",
+                        location: "Western Argentina",
+                        characteristics: ["Diverse", "Value", "Warm climate"]
+                    }
+                ]
+            }
+        };
+
+        let currentCountry = '';
+        let currentRegions = [];
+        let quizQuestions = [];
+        let currentQuestionIndex = 0;
+        let correctAnswers = 0;
+        let totalAnswered = 0;
+        let learningModeActive = false;
+
+        function selectModule(module) {
+            document.getElementById('mainMenu').style.display = 'none';
+            document.getElementById('regionsContent').classList.add('active');
+        }
+
+        function backToMenu() {
+            document.getElementById('mainMenu').style.display = 'block';
+            document.getElementById('regionsContent').classList.remove('active');
+            document.getElementById('learningMode').style.display = 'none';
+            document.getElementById('quizMode').style.display = 'none';
+            learningModeActive = false;
+        }
+
+        function loadRegions() {
+            const select = document.getElementById('countrySelect');
+            currentCountry = select.value;
+            
+            if (!currentCountry) {
+                alert('Please select a country');
+                return;
+            }
+
+            const countryData = wineDatabase[currentCountry];
+            if (!countryData) return;
+
+            currentRegions = countryData.regions;
+            document.getElementById('selectedCountry').textContent = countryData.name;
+            
+            // Display regions
+            const regionsList = document.getElementById('regionsList');
+            regionsList.innerHTML = '';
+            
+            currentRegions.forEach(region => {
+                const regionEl = document.createElement('div');
+                regionEl.className = 'region-item';
+                regionEl.innerHTML = `
+                    <h5>${region.name}</h5>
+                    <p class="description"><strong>Location:</strong> ${region.location}</p>
+                    <p class="description"><strong>Details:</strong> ${region.description}</p>
+                    <p class="description"><strong>Known for:</strong> ${region.characteristics.join(', ')}</p>
+                `;
+                regionsList.appendChild(regionEl);
+            });
+        }
+
+        function toggleLearningMode() {
+            if (!currentCountry) {
+                alert('Please select a country first');
+                return;
+            }
+
+            learningModeActive = !learningModeActive;
+            document.getElementById('learningMode').style.display = learningModeActive ? 'block' : 'none';
+            document.getElementById('quizMode').style.display = 'none';
+            
+            if (learningModeActive) {
+                loadRegions();
+            }
+        }
+
+        function startQuiz() {
+            if (!currentCountry) {
+                alert('Please select a country first');
+                return;
+            }
+
+            learningModeActive = false;
+            document.getElementById('learningMode').style.display = 'none';
+            document.getElementById('quizMode').style.display = 'block';
+            
+            generateQuizQuestions();
+            currentQuestionIndex = 0;
+            correctAnswers = 0;
+            totalAnswered = 0;
+            updateStats();
+            displayQuestion();
+        }
+
+        function generateQuizQuestions() {
+            quizQuestions = [];
+            
+            // Question type 1: Identify region by description
+            currentRegions.forEach(region => {
+                const wrongRegions = currentRegions.filter(r => r.name !== region.name);
+                const options = [region.name];
+                
+                while (options.length < 4 && wrongRegions.length > 0) {
+                    const randomIndex = Math.floor(Math.random() * wrongRegions.length);
+                    options.push(wrongRegions[randomIndex].name);
+                    wrongRegions.splice(randomIndex, 1);
+                }
+
+                quizQuestions.push({
+                    question: `Which region is known for: "${region.description}"?`,
+                    correctAnswer: region.name,
+                    options: options.sort(() => Math.random() - 0.5),
+                    explanation: `${region.name} is located in ${region.location}. It's known for ${region.characteristics.join(', ')}.`
+                });
+
+                // Question type 2: Identify location
+                quizQuestions.push({
+                    question: `Where is ${region.name} located?`,
+                    correctAnswer: region.location,
+                    options: [region.location, 'Eastern ' + wineDatabase[currentCountry].name, 'Southern ' + wineDatabase[currentCountry].name, 'Northern ' + wineDatabase[currentCountry].name].sort(() => Math.random() - 0.5),
+                    explanation: `${region.name} is in ${region.location}.`
+                });
+            });
+
+            // Shuffle questions
+            quizQuestions = quizQuestions.sort(() => Math.random() - 0.5).slice(0, 10);
+        }
+
+        function displayQuestion() {
+            if (currentQuestionIndex >= quizQuestions.length) {
+                document.getElementById('questionContainer').innerHTML = `
+                    <h3 style="color: #d4af37; text-align: center;">Quiz Complete!</h3>
+                    <div style="text-align: center; margin: 20px 0;">
+                        <p style="font-size: 1.3em; color: #90ee90;">Score: ${correctAnswers} / ${quizQuestions.length}</p>
+                        <p style="color: #a0a0a0; margin-top: 15px;">Percentage: ${Math.round((correctAnswers / quizQuestions.length) * 100)}%</p>
+                    </div>
+                    <button onclick="startQuiz()" style="margin-top: 20px; width: 100%;">Try Again</button>
+                `;
+                return;
+            }
+
+            const question = quizQuestions[currentQuestionIndex];
+            document.getElementById('questionNumber').textContent = currentQuestionIndex + 1;
+            document.getElementById('questionText').textContent = question.question;
+            document.getElementById('questionContainer').style.display = 'block';
+            
+            const optionsContainer = document.getElementById('optionsContainer');
+            optionsContainer.innerHTML = '';
+            
+            question.options.forEach(option => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn';
+                btn.textContent = option;
+                btn.onclick = () => selectAnswer(option, question.correctAnswer, question.explanation);
+                optionsContainer.appendChild(btn);
+            });
+
+            document.getElementById('feedback').style.display = 'none';
+            document.getElementById('nextBtn').style.display = 'none';
+        }
+
+        function selectAnswer(selected, correct, explanation) {
+            const options = document.querySelectorAll('.option-btn');
+            const feedback = document.getElementById('feedback');
+            
+            options.forEach(opt => {
+                if (opt.textContent === correct) {
+                    opt.classList.add('correct');
+                } else if (opt.textContent === selected && selected !== correct) {
+                    opt.classList.add('incorrect');
+                }
+                opt.disabled = true;
+            });
+
+            if (selected === correct) {
+                correctAnswers++;
+                feedback.className = 'feedback correct';
+                feedback.textContent = '✓ Correct! ' + explanation;
+            } else {
+                feedback.className = 'feedback incorrect';
+                feedback.textContent = '✗ Incorrect. ' + explanation;
+            }
+
+            totalAnswered++;
+            updateStats();
+            feedback.style.display = 'block';
+            document.getElementById('nextBtn').style.display = 'block';
+        }
+
+        function nextQuestion() {
+            currentQuestionIndex++;
+            displayQuestion();
+        }
+
+        function updateStats() {
+            document.getElementById('correct').textContent = correctAnswers;
+            document.getElementById('total').textContent = totalAnswered;
+            document.getElementById('score').textContent = totalAnswered > 0 ? Math.round((correctAnswers / totalAnswered) * 100) : 0;
+        }
+    </script>
+</body>
+</html>
